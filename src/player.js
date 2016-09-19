@@ -1,7 +1,8 @@
 "use strict";
 
 const MS_PER_FRAME = 1000/8;
-const JUMP_DISTANCE = 50;
+const JUMP_DISTANCE = 5;
+var distance = 0;
 
 /**
  * @module exports the Player class
@@ -23,54 +24,92 @@ function Player(position) {
   this.spritesheet.src = encodeURI('assets/PlayerSprite2.png');
   this.timer = 0;
   this.frame = 0;
+  this.distance = 0;
+
+
+  var self = this;
 
   // Frog movement based on key commands
+  var input = 
+  {
+    up: false,
+    down: false,
+    left: false,
+    right: false
+  }
+
  
-    var self = this;
-    window.onkeydown = function(event)
+  window.onkeydown = function(event)
+  {
+    event.preventDefault();
+    switch (event.keyCode)
     {
-      event.preventDefault();
-      switch (event.keyCode)
-      {
-        // RIGHT
-        case 39:
-        case 68:
-          if(self.state == "idle") {
-            console.log("hop right");
-            self.state = "hop-1";
-            //self.x += JUMP_DISTANCE;
-          }
-          break;
-        // LEFT
-        case 37:
-        case 65:
-          if(self.state == "idle") {
-            console.log("hop left");
-            self.x -= JUMP_DISTANCE;
-            //self.state = "hop-1";
-          }
-          break;
-        // UP
-        case 38:
-        case 87:
-          if(self.state == "idle") {
-            console.log("hop up");
-            self.y -= JUMP_DISTANCE;
-            self.state = "hop-1";
-          }
-          break;
-        // DOWN
-        case 40:
-        case 83:
-          if(self.state == "idle") {
-            console.log("hop down");
-            self.y += JUMP_DISTANCE;
-            self.state = "hop-1";
-          }
-          break;
-      }
+      // UP
+      case 38:
+      case 87:
+        input.up = true;
+        self.state = "hop";
+        break;
+      // LEFT
+      case 37:
+      case 65:
+        input.left = true;
+        self.state = "hop";
+        break;  
+      // RIGHT
+      case 39:
+      case 68:
+        input.right = true;
+        self.state = "hop";
+        break;
+      // DOWN
+      case 40:
+      case 83:
+        input.down = true;
+        self.state = "hop";
+        break;
     }
-  
+  }
+
+  window.onkeyup = function(event)
+  {
+    switch (event.keyCode)
+    {
+      // UP
+      case 38:
+      case 87:
+        input.up = false;
+        break;
+      // LEFT
+      case 37:
+      case 65:
+        input.left = false;
+        break;  
+      // RIGHT
+      case 39:
+      case 68:
+        input.right = false;
+        break;
+      // DOWN
+      case 40:
+      case 83:
+        input.down = false;
+        break;
+
+    }
+  }
+
+  self.move = function(time)
+  {
+   
+    if(input.right)
+      {
+        self.state = "hop";
+        self.x += JUMP_DISTANCE;
+      }     
+  }
+
+
 }
 
 
@@ -88,7 +127,7 @@ Player.prototype.update = function(time) {
         if(this.frame > 3) this.frame = 0;
       }
       break;
-    case "hop-1":
+    case "hop":
       this.timer += time;
       if(this.timer > MS_PER_FRAME) {
 
@@ -96,7 +135,7 @@ Player.prototype.update = function(time) {
         this.frame += 1;
         if(this.frame > 3) this.frame = 0;
       }
-      //this.move(time);
+      this.move(time);
       break;
 
 
@@ -116,23 +155,24 @@ Player.prototype.render = function(time, ctx) {
         // image
         this.spritesheet,
         // source rectangle
-        this.frame * 64, 0*64, this.width, this.height,
+        this.frame * 64, 64, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
       );
       break;
-    case "hop-1":
+    case "hop":
+      ctx.drawImage(
         // image
         this.spritesheet,
         // source rectangle
-        this.frame * 64, 1*64, this.width, this.height,
+        this.frame * 64, 0, this.width, this.height,
         // destination rectangle
         this.x, this.y, this.width, this.height
+        );
       break;
    
       //this.x += JUMP_DISTANCE;
       //this.state = "idle";
-      break;
     // TODO: Implement your player's redering according to state
   }
 }

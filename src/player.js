@@ -2,7 +2,6 @@
 
 const MS_PER_FRAME = 1000/8;
 const JUMP_DISTANCE = 5;
-var distance = 0;
 
 /**
  * @module exports the Player class
@@ -25,7 +24,6 @@ function Player(position) {
   this.timer = 0;
   this.frame = 0;
   this.distance = 0;
-
 
   var self = this;
 
@@ -100,13 +98,11 @@ function Player(position) {
   }
 
   self.move = function(time)
-  {
-   
+  { 
     if(input.right)
-      {
-        self.state = "hop";
-        self.x += JUMP_DISTANCE;
-      }     
+    {
+      self.x += JUMP_DISTANCE;
+    } 
   }
 
 
@@ -129,11 +125,16 @@ Player.prototype.update = function(time) {
       break;
     case "hop":
       this.timer += time;
-      if(this.timer > MS_PER_FRAME) {
+      if(this.timer > 1000/4) {
 
         this.timer = 0;
         this.frame += 1;
-        if(this.frame > 3) this.frame = 0;
+        if(this.frame > 3)
+        {
+          this.frame = 0;
+          this.state = "idle";
+        } 
+
       }
       this.move(time);
       break;

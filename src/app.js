@@ -9,6 +9,8 @@ var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240});
 
+
+
 /**
  * @function masterLoop
  * Advances the game in sync with the refresh rate of the screen
@@ -32,6 +34,35 @@ masterLoop(performance.now());
 function update(elapsedTime) {
   player.update(elapsedTime);
   document.getElementById('score').innerHTML = "Score: " + player.score;
+  document.getElementById('level').innerHTML = "Level: " + player.level;
+  document.getElementById('lives').innerHTML = "Lives: " + player.lives;
+
+  /*
+    If a player gets to the end, bring the player to a new level
+  */
+  if(player.newLevel)
+  {
+    player.x = 0;
+    player.y = 240;
+    player.level++;
+
+    player.newLevel = false;
+  }
+
+  /* Check if the player is dead */
+  if(player.dead)
+  {
+    if(player.lives == 0)
+    {
+      return;
+    }
+    else
+    {
+      player.x = 0;
+      player.y = 240;
+      player.lives--;
+    }
+  }
   // TODO: Update the game objects
 }
 
@@ -43,7 +74,10 @@ function update(elapsedTime) {
   * @param {CanvasRenderingContext2D} ctx the context to render to
   */
 function render(elapsedTime, ctx) {
-  ctx.fillStyle = "lightblue";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //ctx.fillStyle = "lightblue";
+  //ctx.fillRect(0, 0, canvas.width, canvas.height);
+  var img = document.getElementById("image");
+  ctx.drawImage(img, 0, 0);
+  //ctx.fillStyle = ctx.createPattern()
   player.render(elapsedTime, ctx);
 }

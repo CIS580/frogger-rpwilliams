@@ -10,6 +10,8 @@ var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240});
 
+
+
 /**
  * @function masterLoop
  * Advances the game in sync with the refresh rate of the screen
@@ -33,6 +35,35 @@ masterLoop(performance.now());
 function update(elapsedTime) {
   player.update(elapsedTime);
   document.getElementById('score').innerHTML = "Score: " + player.score;
+  document.getElementById('level').innerHTML = "Level: " + player.level;
+  document.getElementById('lives').innerHTML = "Lives: " + player.lives;
+
+  /*
+    If a player gets to the end, bring the player to a new level
+  */
+  if(player.newLevel)
+  {
+    player.x = 0;
+    player.y = 240;
+    player.level++;
+
+    player.newLevel = false;
+  }
+
+  /* Check if the player is dead */
+  if(player.dead)
+  {
+    if(player.lives == 0)
+    {
+      return;
+    }
+    else
+    {
+      player.x = 0;
+      player.y = 240;
+      player.lives--;
+    }
+  }
   // TODO: Update the game objects
 }
 
@@ -44,8 +75,11 @@ function update(elapsedTime) {
   * @param {CanvasRenderingContext2D} ctx the context to render to
   */
 function render(elapsedTime, ctx) {
-  ctx.fillStyle = "lightblue";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  //ctx.fillStyle = "lightblue";
+  //ctx.fillRect(0, 0, canvas.width, canvas.height);
+  var img = document.getElementById("image");
+  ctx.drawImage(img, 0, 0);
+  //ctx.fillStyle = ctx.createPattern()
   player.render(elapsedTime, ctx);
 }
 
@@ -116,7 +150,11 @@ Game.prototype.loop = function(newTime) {
 const MS_PER_FRAME = 1000/8;
 const JUMP_DISTANCE = 5;
 const SUCCESS = 650;
-var score;
+var score;  
+var level;
+var lives;
+var newLevel; // true or false if end has been reached
+var dead;
 
 /**
  * @module exports the Player class
@@ -139,7 +177,13 @@ function Player(position) {
   this.timer = 0;
   this.frame = 0;
   this.distance = 0;
+  
   this.score = 0;
+  this.level = 1;
+  this.lives = 3;
+  
+  this.newLevel = false;
+  this.dead = false;
 
   var self = this;
 
@@ -153,36 +197,17 @@ function Player(position) {
     right: false
   }
 
- 
   window.onkeydown = function(event)
   {
     event.preventDefault();
     switch (event.keyCode)
     {
-      // UP
-      case 38:
-      case 87:
-        input.up = true;
-        self.state = "hop";
-        break;
-      // LEFT
-      case 37:
-      case 65:
-        input.left = true;
-        self.state = "hop";
-        break;  
       // RIGHT
       case 39:
       case 68:
         input.right = true;
         self.state = "hop";
-        break;
-      // DOWN
-      case 40:
-      case 83:
-        input.down = true;
-        self.state = "hop";
-        break;
+        break;    
     }
   }
 
@@ -190,27 +215,11 @@ function Player(position) {
   {
     switch (event.keyCode)
     {
-      // UP
-      case 38:
-      case 87:
-        input.up = false;
-        break;
-      // LEFT
-      case 37:
-      case 65:
-        input.left = false;
-        break;  
       // RIGHT
       case 39:
       case 68:
         input.right = false;
         break;
-      // DOWN
-      case 40:
-      case 83:
-        input.down = false;
-        break;
-
     }
   }
 
@@ -235,6 +244,7 @@ Player.prototype.update = function(time) {
   if(this.x == SUCCESS)
   {
     this.score++;
+    this.newLevel = true;
   }
 
   switch(this.state) {

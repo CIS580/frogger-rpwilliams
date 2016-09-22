@@ -3,7 +3,11 @@
 const MS_PER_FRAME = 1000/8;
 const JUMP_DISTANCE = 5;
 const SUCCESS = 650;
-var score;
+var score;  
+var level;
+var lives;
+var newLevel; // true or false if end has been reached
+var dead;
 
 /**
  * @module exports the Player class
@@ -26,7 +30,13 @@ function Player(position) {
   this.timer = 0;
   this.frame = 0;
   this.distance = 0;
+  
   this.score = 0;
+  this.level = 1;
+  this.lives = 3;
+  
+  this.newLevel = false;
+  this.dead = false;
 
   var self = this;
 
@@ -40,36 +50,17 @@ function Player(position) {
     right: false
   }
 
- 
   window.onkeydown = function(event)
   {
     event.preventDefault();
     switch (event.keyCode)
     {
-      // UP
-      case 38:
-      case 87:
-        input.up = true;
-        self.state = "hop";
-        break;
-      // LEFT
-      case 37:
-      case 65:
-        input.left = true;
-        self.state = "hop";
-        break;  
       // RIGHT
       case 39:
       case 68:
         input.right = true;
         self.state = "hop";
-        break;
-      // DOWN
-      case 40:
-      case 83:
-        input.down = true;
-        self.state = "hop";
-        break;
+        break;    
     }
   }
 
@@ -77,27 +68,11 @@ function Player(position) {
   {
     switch (event.keyCode)
     {
-      // UP
-      case 38:
-      case 87:
-        input.up = false;
-        break;
-      // LEFT
-      case 37:
-      case 65:
-        input.left = false;
-        break;  
       // RIGHT
       case 39:
       case 68:
         input.right = false;
         break;
-      // DOWN
-      case 40:
-      case 83:
-        input.down = false;
-        break;
-
     }
   }
 
@@ -122,6 +97,7 @@ Player.prototype.update = function(time) {
   if(this.x == SUCCESS)
   {
     this.score++;
+    this.newLevel = true;
   }
 
   switch(this.state) {

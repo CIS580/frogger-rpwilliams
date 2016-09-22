@@ -12,11 +12,11 @@ You may use the art provided, or your own.  Additionally, you do not need to mak
 
 2. DONE: Movement for the player should proceed in fixed increments, i.e. 'hopping', rather than 'walking'. Pushing the forward button should start a hop, which is then interpolated over several frames before a landing.  While hopping, the player cannot change the action their sprite is taking (10 points).
 
-3. Multiple obstacles appear in the game, and move vertically.  Obstacles are implemented as classes in their own modules (10 points).
+3. TO DO: Multiple obstacles appear in the game, and move vertically.  Obstacles are implemented as classes in their own modules (10 points).
 
-4. A background appropriate to the game is provided, with clear cues to where obstacles will appear (i.e. cars appear on a road, logs in a river) (10 points).
+4. DONE: A background appropriate to the game is provided, with clear cues to where obstacles will appear (i.e. cars appear on a road, logs in a river) (10 points).
 
-5. Some obstacles, i.e. cars, kill the player sprite when collided with (10 points).
+5. TO DO: Some obstacles, i.e. cars, kill the player sprite when collided with (10 points).
 
 6. Other obstacles (i.e. logs, which keep the frog protagonist from drowning), are necessary to collide with (10 points).
 

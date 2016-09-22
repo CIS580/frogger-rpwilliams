@@ -78,8 +78,6 @@ function Player(position) {
 
   self.move = function(time)
   { 
-    console.log(self.x);
-
     if(input.right)
     {
       self.x += JUMP_DISTANCE;

@@ -4,11 +4,25 @@
 /* Classes */
 const Game = require('./game.js');
 const Player = require('./player.js');
+const Minicar = require('./minicar.js');
 
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240});
+var carX = Math.floor((Math.random() * 150) + 240);
+var carY = Math.floor((Math.random() * 350) + 0);
+var numberOfCars = 4;
+
+var minicars = [];
+for(var i=0; i < numberOfCars; i++) {
+  minicars.push(new Minicar({
+    x: carX,
+    y: carY
+  }));
+}
+minicars.sort(function(s1, s2) {return s1.y - s2.y;});
+
 
 
 
@@ -34,6 +48,8 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   player.update(elapsedTime);
+  minicars.forEach(function(minicar) { minicar.update(elapsedTime);});
+
   document.getElementById('score').innerHTML = "Score: " + player.score;
   document.getElementById('level').innerHTML = "Level: " + player.level;
   document.getElementById('lives').innerHTML = "Lives: " + player.lives;
@@ -43,9 +59,24 @@ function update(elapsedTime) {
   */
   if(player.newLevel)
   {
+    // Reinitialize player
     player.x = 0;
     player.y = 240;
     player.level++;
+    
+    // Reinitialize cars
+    numberOfCars++;
+    carX = Math.floor((Math.random() * 150) + 240);
+    carY = Math.floor((Math.random() * 350) + 0);
+    minicars = [];
+    for(var i=0; i < numberOfCars; i++) {
+      minicars.push(new Minicar({
+        x: carX,
+        y: carY
+      }));
+      console.log("Adding new cars");
+      minicars[i].speed += .5;  // Increase the speed of the minicar
+  }
 
     player.newLevel = false;
   }
@@ -75,15 +106,16 @@ function update(elapsedTime) {
   * @param {CanvasRenderingContext2D} ctx the context to render to
   */
 function render(elapsedTime, ctx) {
-  //ctx.fillStyle = "lightblue";
-  //ctx.fillRect(0, 0, canvas.width, canvas.height);
-  var img = document.getElementById("image");
+  var img = new Image();
+  img.src = "assets/froggerBackground.png";
   ctx.drawImage(img, 0, 0);
-  //ctx.fillStyle = ctx.createPattern()
+  
+  minicars.forEach(function(minicar){minicar.render(elapsedTime, ctx);});
+  
   player.render(elapsedTime, ctx);
 }
 
-},{"./game.js":2,"./player.js":3}],2:[function(require,module,exports){
+},{"./game.js":2,"./minicar.js":3,"./player.js":4}],2:[function(require,module,exports){
 "use strict";
 
 /**
@@ -145,6 +177,90 @@ Game.prototype.loop = function(newTime) {
 }
 
 },{}],3:[function(require,module,exports){
+"use strict";
+
+/**
+ * @module exports the Snake class
+ */
+module.exports = exports = Minicar;
+var speed;
+
+/**
+ * @constructor Snake
+ * Creates a new snake object
+ * @param {Postition} position object specifying an x and y
+ */
+function Minicar(position) {
+  this.state = (Math.random() > 0.5) ? "up" : "down";
+  this.frame = 0;
+  this.timer = 0;
+  this.x = position.x;
+  this.y = position.y;
+  this.width  = 256;
+  this.height = 64 * 6;
+  
+  // My code
+  this.spritesheet  = new Image();
+  this.spritesheet.src = encodeURI('assets/cars_mini.png');
+  this.upBound = position.y - 100;
+  this.downBound = position.y + 100;
+  this.speed = .5;
+}
+
+/** Declare spritesheet at the class level */
+
+
+
+/**
+ * @function updates the player object
+ * {DOMHighResTimeStamp} time the elapsed time since the last frame
+ */
+Minicar.prototype.update = function(elapsedTime) {
+  this.timer += elapsedTime;
+  if(this.timer > 1000/6) {
+    this.frame = (this.frame + 1) % 1;
+    this.timer = 0;
+  }
+  switch(this.state) {
+    case "up":
+      this.y -= this.speed;
+      if(this.y < this.upBound) this.state = "up";
+      break;
+    case "down":
+      this.y += this.speed;
+      if(this.y > this.downBound) this.state = "down";
+      break;
+  }
+}
+
+/**
+ * @function renders the player into the provided context
+ * {DOMHighResTimeStamp} time the elapsed time since the last frame
+ * {CanvasRenderingContext2D} ctx the context to render into
+ */
+Minicar.prototype.render = function(time, ctx) {
+  if(this.state == "up") {
+    ctx.drawImage(
+      // image
+      this.spritesheet,
+      // source rectangle
+      this.frame * this.width, 0, this.width, this.height,
+      // destination rectangle
+      this.x, this.y, this.width/2, this.height/2
+    );
+  } else {
+    ctx.drawImage(
+      // image
+      this.spritesheet,
+      // source rectangle
+      this.frame * this.width, 0, this.width, this.height,
+      // destination rectangle
+      this.x, this.y, this.width/2, this.height/2
+    );
+  }
+}
+
+},{}],4:[function(require,module,exports){
 "use strict";
 
 const MS_PER_FRAME = 1000/8;
@@ -225,8 +341,6 @@ function Player(position) {
 
   self.move = function(time)
   { 
-    console.log(self.x);
-
     if(input.right)
     {
       self.x += JUMP_DISTANCE;

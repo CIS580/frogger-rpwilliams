@@ -5,6 +5,7 @@
  */
 module.exports = exports = Game;
 
+
 /**
  * @constructor Game
  * Creates a new game object
@@ -23,6 +24,8 @@ function Game(screen, updateFunction, renderFunction) {
   this.backBuffer.width = screen.width;
   this.backBuffer.height = screen.height;
   this.backCtx = this.backBuffer.getContext('2d');
+
+  
 
   // Start the game loop
   this.oldTime = performance.now();

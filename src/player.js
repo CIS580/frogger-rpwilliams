@@ -2,6 +2,8 @@
 
 const MS_PER_FRAME = 1000/8;
 const JUMP_DISTANCE = 5;
+const SUCCESS = 650;
+var score;
 
 /**
  * @module exports the Player class
@@ -24,8 +26,10 @@ function Player(position) {
   this.timer = 0;
   this.frame = 0;
   this.distance = 0;
+  this.score = 0;
 
   var self = this;
+
 
   // Frog movement based on key commands
   var input = 
@@ -99,12 +103,13 @@ function Player(position) {
 
   self.move = function(time)
   { 
+    console.log(self.x);
+
     if(input.right)
     {
       self.x += JUMP_DISTANCE;
     } 
   }
-
 
 }
 
@@ -114,6 +119,11 @@ function Player(position) {
  * {DOMHighResTimeStamp} time the elapsed time since the last frame
  */
 Player.prototype.update = function(time) {
+  if(this.x == SUCCESS)
+  {
+    this.score++;
+  }
+
   switch(this.state) {
     case "idle":
       this.timer += time;

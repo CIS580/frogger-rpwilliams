@@ -8,7 +8,7 @@ const Player = require('./player.js');
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
-var player = new Player({x: 0, y: 240})
+var player = new Player({x: 0, y: 240});
 
 /**
  * @function masterLoop
@@ -32,12 +32,13 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   player.update(elapsedTime);
+  document.getElementById('score').innerHTML = "Score: " + player.score;
   // TODO: Update the game objects
 }
 
 /**
   * @function render
-  * Renders the current game state into a back buffer.
+  * Renders the current0 game state into a back buffer.
   * @param {DOMHighResTimeStamp} elapsedTime indicates
   * the number of milliseconds passed since the last frame.
   * @param {CanvasRenderingContext2D} ctx the context to render to
@@ -55,6 +56,7 @@ function render(elapsedTime, ctx) {
  * @module exports the Game class
  */
 module.exports = exports = Game;
+
 
 /**
  * @constructor Game
@@ -74,6 +76,8 @@ function Game(screen, updateFunction, renderFunction) {
   this.backBuffer.width = screen.width;
   this.backBuffer.height = screen.height;
   this.backCtx = this.backBuffer.getContext('2d');
+
+  
 
   // Start the game loop
   this.oldTime = performance.now();
@@ -111,6 +115,8 @@ Game.prototype.loop = function(newTime) {
 
 const MS_PER_FRAME = 1000/8;
 const JUMP_DISTANCE = 5;
+const SUCCESS = 650;
+var score;
 
 /**
  * @module exports the Player class
@@ -133,9 +139,10 @@ function Player(position) {
   this.timer = 0;
   this.frame = 0;
   this.distance = 0;
-
+  this.score = 0;
 
   var self = this;
+
 
   // Frog movement based on key commands
   var input = 
@@ -208,15 +215,14 @@ function Player(position) {
   }
 
   self.move = function(time)
-  {
-   
+  { 
+    console.log(self.x);
+
     if(input.right)
     {
       self.x += JUMP_DISTANCE;
-    }  
-     
+    } 
   }
-
 
 }
 
@@ -226,6 +232,11 @@ function Player(position) {
  * {DOMHighResTimeStamp} time the elapsed time since the last frame
  */
 Player.prototype.update = function(time) {
+  if(this.x == SUCCESS)
+  {
+    this.score++;
+  }
+
   switch(this.state) {
     case "idle":
       this.timer += time;

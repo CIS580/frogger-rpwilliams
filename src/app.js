@@ -7,7 +7,7 @@ const Player = require('./player.js');
 /* Global variables */
 var canvas = document.getElementById('screen');
 var game = new Game(canvas, update, render);
-var player = new Player({x: 0, y: 240})
+var player = new Player({x: 0, y: 240});
 
 /**
  * @function masterLoop
@@ -31,12 +31,13 @@ masterLoop(performance.now());
  */
 function update(elapsedTime) {
   player.update(elapsedTime);
+  document.getElementById('score').innerHTML = "Score: " + player.score;
   // TODO: Update the game objects
 }
 
 /**
   * @function render
-  * Renders the current game state into a back buffer.
+  * Renders the current0 game state into a back buffer.
   * @param {DOMHighResTimeStamp} elapsedTime indicates
   * the number of milliseconds passed since the last frame.
   * @param {CanvasRenderingContext2D} ctx the context to render to

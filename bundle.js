@@ -1,5 +1,11 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict;"
+/*
+  Frogger v1
+  Author: Ryan Williams
+  Last updated: 9.22.2016
+*/
+
 
 /* Classes */
 const Game = require('./game.js');
@@ -12,7 +18,12 @@ var game = new Game(canvas, update, render);
 var player = new Player({x: 0, y: 240});
 var carX = Math.floor((Math.random() * 150) + 240);
 var carY = Math.floor((Math.random() * 350) + 0);
-var numberOfCars = 4;
+var numberOfCars = 1;
+var bigX = 0;
+var bigY = 0;
+var smallY = 0;
+var smallX = 0;
+var distance = 0;
 
 var minicars = [];
 for(var i=0; i < numberOfCars; i++) {
@@ -74,7 +85,6 @@ function update(elapsedTime) {
         x: carX,
         y: carY
       }));
-      console.log("Adding new cars");
       minicars[i].speed += .5;  // Increase the speed of the minicar
   }
 
@@ -84,18 +94,51 @@ function update(elapsedTime) {
   /* Check if the player is dead */
   if(player.dead)
   {
-    if(player.lives == 0)
-    {
-      return;
-    }
-    else
-    {
       player.x = 0;
       player.y = 240;
       player.lives--;
+      player.dead = false;
+  }
+
+
+  for(var index in minicars)
+  {
+    if(minicars[index].x >= player.x)
+    {
+      bigX = minicars[index].x;
+      smallX = player.x;
+    }
+    else if(minicars[index].x < player.x)
+    {
+      smallX = minicars[index].x;
+      bigX = player.x;
+    }
+    if(minicars[index].y >= player.y)
+    {
+      bigY = minicars[index].y;
+      smallY = player.y;
+    }
+    else if(minicars[index].x < player.x)
+    {
+      smallY = minicars[index].y;
+      bigY = player.y;
+    }
+
+    
+    /* Calculate the distance between the apple and the player at any given time */
+    distance = Math.abs(Math.sqrt(((bigX - smallX)*(bigX - smallX))
+     + ((bigY - smallY)*(bigY - smallY))));
+    
+    
+    if(distance <= 5)
+    {
+      player.dead = true;
+    }
+    else
+    {
+      player.dead = false;
     }
   }
-  // TODO: Update the game objects
 }
 
 /**
@@ -113,6 +156,15 @@ function render(elapsedTime, ctx) {
   minicars.forEach(function(minicar){minicar.render(elapsedTime, ctx);});
   
   player.render(elapsedTime, ctx);
+
+  if(player.lives == 0)
+  {
+    document.getElementById('play').innerHTML = "GAME OVER";
+    img = new Image();
+    /* Image used under the creative commons license by Virginia Gewin */
+    img.src = "https://upload.wikimedia.org/wikipedia/commons/0/01/Chytridiomycosis.jpg";
+    ctx.drawImage(img, 0, 0, 760, 480);
+  }
 }
 
 },{"./game.js":2,"./minicar.js":3,"./player.js":4}],2:[function(require,module,exports){
@@ -184,6 +236,8 @@ Game.prototype.loop = function(newTime) {
  */
 module.exports = exports = Minicar;
 var speed;
+var upBound;
+var downBound;
 
 /**
  * @constructor Snake
@@ -199,12 +253,12 @@ function Minicar(position) {
   this.width  = 256;
   this.height = 64 * 6;
   
-  // My code
   this.spritesheet  = new Image();
   this.spritesheet.src = encodeURI('assets/cars_mini.png');
-  this.upBound = position.y - 100;
-  this.downBound = position.y + 100;
+  this.upBound = this.y - 300;
+  this.downBound = this.y + 300;
   this.speed = .5;
+
 }
 
 /** Declare spritesheet at the class level */
@@ -224,11 +278,11 @@ Minicar.prototype.update = function(elapsedTime) {
   switch(this.state) {
     case "up":
       this.y -= this.speed;
-      if(this.y < this.upBound) this.state = "up";
+      if(this.y < this.upBound) this.state = "down";
       break;
     case "down":
       this.y += this.speed;
-      if(this.y > this.downBound) this.state = "down";
+      if(this.y > this.downBound) this.state = "up";
       break;
   }
 }
@@ -239,7 +293,7 @@ Minicar.prototype.update = function(elapsedTime) {
  * {CanvasRenderingContext2D} ctx the context to render into
  */
 Minicar.prototype.render = function(time, ctx) {
-  if(this.state == "up") {
+
     ctx.drawImage(
       // image
       this.spritesheet,
@@ -248,16 +302,7 @@ Minicar.prototype.render = function(time, ctx) {
       // destination rectangle
       this.x, this.y, this.width/2, this.height/2
     );
-  } else {
-    ctx.drawImage(
-      // image
-      this.spritesheet,
-      // source rectangle
-      this.frame * this.width, 0, this.width, this.height,
-      // destination rectangle
-      this.x, this.y, this.width/2, this.height/2
-    );
-  }
+  
 }
 
 },{}],4:[function(require,module,exports){

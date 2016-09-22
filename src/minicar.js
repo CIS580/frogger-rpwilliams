@@ -5,6 +5,8 @@
  */
 module.exports = exports = Minicar;
 var speed;
+var upBound;
+var downBound;
 
 /**
  * @constructor Snake
@@ -20,12 +22,12 @@ function Minicar(position) {
   this.width  = 256;
   this.height = 64 * 6;
   
-  // My code
   this.spritesheet  = new Image();
   this.spritesheet.src = encodeURI('assets/cars_mini.png');
-  this.upBound = position.y - 100;
-  this.downBound = position.y + 100;
+  this.upBound = this.y - 300;
+  this.downBound = this.y + 300;
   this.speed = .5;
+
 }
 
 /** Declare spritesheet at the class level */
@@ -45,11 +47,11 @@ Minicar.prototype.update = function(elapsedTime) {
   switch(this.state) {
     case "up":
       this.y -= this.speed;
-      if(this.y < this.upBound) this.state = "up";
+      if(this.y < this.upBound) this.state = "down";
       break;
     case "down":
       this.y += this.speed;
-      if(this.y > this.downBound) this.state = "down";
+      if(this.y > this.downBound) this.state = "up";
       break;
   }
 }
@@ -60,7 +62,7 @@ Minicar.prototype.update = function(elapsedTime) {
  * {CanvasRenderingContext2D} ctx the context to render into
  */
 Minicar.prototype.render = function(time, ctx) {
-  if(this.state == "up") {
+
     ctx.drawImage(
       // image
       this.spritesheet,
@@ -69,14 +71,5 @@ Minicar.prototype.render = function(time, ctx) {
       // destination rectangle
       this.x, this.y, this.width/2, this.height/2
     );
-  } else {
-    ctx.drawImage(
-      // image
-      this.spritesheet,
-      // source rectangle
-      this.frame * this.width, 0, this.width, this.height,
-      // destination rectangle
-      this.x, this.y, this.width/2, this.height/2
-    );
-  }
+  
 }
